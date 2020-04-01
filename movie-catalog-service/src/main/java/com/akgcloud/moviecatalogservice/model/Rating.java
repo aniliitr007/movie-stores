@@ -1,33 +1,30 @@
 package com.akgcloud.moviecatalogservice.model;
 
-public class Rating {
+import java.io.Serializable;
 
-    private String movieId;
-    private int    rating;
+public class Rating implements Serializable{
 
-    public Rating() {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private int movieId;
+	private int rating;
 
-    }
+	public int getMovieId() {
+		return movieId;
+	}
 
-    public Rating(String movieId, int rating) {
-        this.movieId = movieId;
-        this.rating = rating;
-    }
+	public void setMovieId(int movieId) {
+		this.movieId = movieId;
+	}
 
-    public String getMovieId() {
-        return movieId;
-    }
+	public int getRating() {
+		return rating;
+	}
 
-    public void setMovieId(String movieId) {
-        this.movieId = movieId;
-    }
-
-    public int getRating() {
-        return rating;
-    }
-
-    public void setRating(int rating) {
-        this.rating = rating;
-    }
+	public void setRating(int rating) {
+		this.rating = rating;
+	}
 
 }

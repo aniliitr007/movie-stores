@@ -1,29 +1,42 @@
 package com.akgcloud.movieratingservice.model;
 
-public class Rating {
+import java.io.Serializable;
 
-    private String movieId;
-    private int    rating;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
-    public Rating(String movieId, int rating) {
-        this.movieId = movieId;
-        this.rating = rating;
-    }
+@Table(name = "rating")
+@Entity
+public class Rating implements Serializable {
 
-    public String getMovieId() {
-        return movieId;
-    }
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
-    public void setMovieId(String movieId) {
-        this.movieId = movieId;
-    }
+	@Id
+	@Column(name = "movie_id")
+	private int movieId;
 
-    public int getRating() {
-        return rating;
-    }
+	@Column(name = "rating")
+	private int rating;
 
-    public void setRating(int rating) {
-        this.rating = rating;
-    }
+	public int getMovieId() {
+		return movieId;
+	}
+
+	public void setMovieId(int movieId) {
+		this.movieId = movieId;
+	}
+
+	public int getRating() {
+		return rating;
+	}
+
+	public void setRating(int rating) {
+		this.rating = rating;
+	}
 
 }
