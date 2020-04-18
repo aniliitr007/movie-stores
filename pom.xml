@@ -15,6 +15,7 @@
         <module>movie-catalog-service</module>
         <module>movie-info-service</module>
         <module>movie-rating-service</module>
+		<module>movie-kafka-consumer</module>
     </modules>
 
 </project>

@@ -13,8 +13,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import com.akgcloud.moviecatalogservice.model.CatalogItem;
 import com.akgcloud.moviecatalogservice.model.Movie;
+import com.akgcloud.moviecatalogservice.model.MovieCatalog;
+import com.akgcloud.moviecatalogservice.model.MovieInfo;
 import com.akgcloud.moviecatalogservice.model.Rating;
 import com.akgcloud.moviecatalogservice.model.UserRating;
 
@@ -28,28 +29,32 @@ public class MovieCatalogService {
 	@Autowired
 	private RestTemplate restTemplate;
 
-
-	public List<CatalogItem> getMoviesCatalog() {
-		List<CatalogItem> items = new ArrayList<CatalogItem>();
+	public MovieCatalog getMoviesCatalog() {
+		MovieCatalog catalog = new MovieCatalog();
 		UserRating userRating = restTemplate.getForObject("http://movie-rating-service/ratings/list", UserRating.class);
 		List<Rating> ratings = userRating.getUserRating();
+		List<MovieInfo> movieInfos = new ArrayList<>();
 		for (Rating rating : ratings) {
 			LOGGER.info("feching for movie id : " + rating.getMovieId());
 			Movie movie = restTemplate.getForObject("http://movie-info-service/movies/" + rating.getMovieId(),
 					Movie.class);
-			items.add(new CatalogItem(movie.getName(), movie.getDescription(), rating.getRating()));
+			MovieInfo movieInfo = new MovieInfo();
+			movieInfo.setMovie(movie);
+			movieInfo.setRating(rating.getRating());
+			movieInfos.add(movieInfo);
 		}
+		catalog.setMovieInfos(movieInfos);
 
 		LOGGER.info("search completed !!!!!!!!!!");
-		return items;
+		return catalog;
 	}
 
 	/*
-	 * TODO : Need to fix response handling through web client 
+	 * TODO : Need to fix response handling through web client
 	 * 
 	 */
-	public List<CatalogItem> getMoviesCatalogWebClient() {
-		List<CatalogItem> items = new ArrayList<CatalogItem>();
+	public List<MovieCatalog> getMoviesCatalogWebClient() {
+		List<MovieCatalog> items = new ArrayList<MovieCatalog>();
 		UserRating userRating = restTemplate.getForObject("http://movie-rating-service/ratings/list", UserRating.class);
 		List<Rating> ratings = userRating.getUserRating();
 		Map<Integer, Integer> ratingMap = new HashMap<>();
@@ -60,14 +65,12 @@ public class MovieCatalogService {
 			ratingMap.put(rating.getMovieId(), rating.getRating());
 			movies.add(movie);
 		}
-		
-		List<Movie> result = movies.stream()
-				.map(m -> m.block())
-				.collect(Collectors.toList());
-		
+
+		List<Movie> result = movies.stream().map(m -> m.block()).collect(Collectors.toList());
+
 		for (Movie res : result) {
-			int r = ratingMap.get(Integer.valueOf(res.getMovieId()));
-			items.add(new CatalogItem(res.getName(), res.getDescription(), r));
+			int r = ratingMap.get(Integer.valueOf(res.getId()));
+			//items.add(new MovieCatalog(res.getName(), res.getDescription(), r));
 		}
 		LOGGER.info("search completed !!!!!!!!!!");
 		return items;
@@ -76,9 +79,7 @@ public class MovieCatalogService {
 	public Mono<Movie> fetchMovieById(int movieId) {
 		final WebClient movieInfoWebClient = WebClient.builder().build();
 		try {
-			return movieInfoWebClient.get()
-					.uri("http://movie-info-service/movies/" + movieId)
-					.retrieve()
+			return movieInfoWebClient.get().uri("http://movie-info-service/movies/" + movieId).retrieve()
 					.bodyToMono(Movie.class);
 		} catch (Exception e) {
 			LOGGER.error("Error in calling movie-info-service", e);
